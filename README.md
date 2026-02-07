@@ -72,3 +72,4 @@ export default defineConfig([
 ])
 ```
 # Pos-project
+# Pos-project.
