@@ -85,7 +85,7 @@ const statusConfig = {
 };
 
 export function TablesView() {
-  const { state, dispatch, selectTable, updateTableStatus, markTableDone } = usePOS();
+  const { state, dispatch, selectTable, markTableDone } = usePOS();
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<Table['status'] | 'all'>('all');
   const [alertInfo, setAlertInfo] = useState<{ open: boolean; title: string; message: string } | null>(null);
