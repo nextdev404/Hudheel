@@ -296,6 +296,7 @@ interface POSContextType {
   acceptOrder: (orderId: string) => void;
   startOrder: (orderId: string) => void;
   markOrderReady: (orderId: string) => void;
+  markOrderServed: (orderId: string) => void;
   markTableDone: (tableId: string) => void;
   markItemUnavailable: (orderId: string, itemId: string) => void;
   markNotificationRead: (id: string) => void;
@@ -589,6 +590,30 @@ export function POSProvider({ children }: { children: ReactNode }) {
     });
   };
 
+  const markOrderServed = (orderId: string) => {
+    const order = state.orders.find((o) => o.id === orderId);
+    if (order) {
+      const updatedOrder: Order = { ...order, status: 'served', updatedAt: new Date() };
+      dispatch({ type: 'UPDATE_ORDER', payload: updatedOrder });
+
+      // Notify for payment
+      const notification: Notification = {
+        id: `notif-pay-${Date.now()}`,
+        type: 'payment_pending',
+        message: `Payment pending for Table ${order.tableNumber}`,
+        createdAt: new Date().toISOString(),
+        read: false,
+        recipientRole: 'waiter', // Notify the waiter (or maybe cashier/manager?)
+        recipientId: order.waiterId,
+        data: {
+          orderId: order.id,
+          tableNumber: order.tableNumber
+        }
+      };
+      dispatch({ type: 'ADD_NOTIFICATION', payload: notification });
+    }
+  };
+
   const setActiveView = (view: POSState['activeView']) => {
     dispatch({ type: 'SET_ACTIVE_VIEW', payload: view });
   };
@@ -788,6 +813,7 @@ export function POSProvider({ children }: { children: ReactNode }) {
         acceptOrder,
         startOrder,
         markOrderReady,
+        markOrderServed,
         markTableDone,
         markItemUnavailable,
         markNotificationRead,

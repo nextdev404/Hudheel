@@ -62,7 +62,7 @@ export function Sidebar({ cartItemCount, activeOrdersCount, finishedOrdersCount 
     },
     {
       id: 'payment',
-      label: 'Payments',
+      label: 'Receipt',
       icon: CreditCard,
       badge: finishedOrdersCount > 0 ? finishedOrdersCount : null,
     },

@@ -46,12 +46,12 @@ function POSApp() {
 
   // Calculate active orders count for kitchen badge
   const activeOrdersCount = orders.filter(
-    (o) => o.status === 'open' || o.status === 'pending' || o.status === 'in-progress'
+    (o) => o.status === 'open' || o.status === 'pending' || o.status === 'in-progress' || o.status === 'ready'
   ).length;
 
   // Calculate finished orders count for payments badge
   const finishedOrdersCount = orders.filter(
-    (o) => o.status === 'ready'
+    (o) => o.status === 'ready' || o.status === 'served'
   ).length;
 
   // Calculate cart item count

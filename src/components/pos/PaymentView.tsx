@@ -110,7 +110,7 @@ export function PaymentView() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h2 className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-slate-50">Payment</h2>
+            <h2 className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-slate-50">Receipt</h2>
             <p className="text-xs sm:text-sm text-slate-500">
               Table {selectedTable.number} • Order Summary
             </p>

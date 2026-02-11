@@ -51,7 +51,7 @@ export interface Order {
   tableId: string;
   tableNumber: number;
   items: OrderItem[];
-  status: 'open' | 'pending' | 'accepted' | 'in-progress' | 'ready' | 'closed' | 'cancelled';
+  status: 'open' | 'pending' | 'accepted' | 'in-progress' | 'ready' | 'served' | 'closed' | 'cancelled';
   createdAt: Date;
   updatedAt: Date;
   acceptedAt?: Date;
@@ -99,7 +99,7 @@ export interface Staff {
 
 export interface Notification {
   id: string;
-  type: 'order_new' | 'order_ready' | 'order_late' | 'system';
+  type: 'order_new' | 'order_ready' | 'order_late' | 'system' | 'payment_pending';
   message: string;
   createdAt: string; // ISO date string
   read: boolean;
@@ -112,7 +112,7 @@ export interface Notification {
 }
 
 export type TableStatus = 'available' | 'assigned' | 'occupied' | 'reserved' | 'cleaning' | 'waiting-for-food' | 'in-service' | 'waiting-for-service';
-export type OrderStatus = 'open' | 'pending' | 'accepted' | 'in-progress' | 'ready' | 'closed' | 'cancelled';
+export type OrderStatus = 'open' | 'pending' | 'accepted' | 'in-progress' | 'ready' | 'served' | 'closed' | 'cancelled';
 export type PaymentMethod = 'cash' | 'card' | 'mobile';
 export type OrderItemStatus = 'pending' | 'preparing' | 'ready' | 'served';
 

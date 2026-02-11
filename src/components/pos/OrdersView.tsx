@@ -68,6 +68,13 @@ const statusConfig = {
     bgColor: 'bg-green-50 border-green-200 rounded-full',
     icon: CheckCircle,
   },
+  served: {
+    label: 'Served',
+    color: 'bg-blue-500',
+    textColor: 'text-blue-700',
+    bgColor: 'bg-blue-50 border-blue-200 rounded-full',
+    icon: CheckCircle,
+  },
   closed: {
     label: 'Ready',
     color: 'bg-green-500',
@@ -85,7 +92,7 @@ const statusConfig = {
 };
 
 export function OrdersView() {
-  const { state, selectTable, setActiveView, updateTableStatus } = usePOS();
+  const { state, selectTable, setActiveView, updateTableStatus, markOrderServed } = usePOS();
   const { orders, tables, currentStaff } = state;
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -191,7 +198,7 @@ export function OrdersView() {
         {/* Desktop Filter Buttons */}
         <div className="hidden sm:flex items-center gap-2">
           <Filter className="h-4 w-4 text-slate-400" />
-          {(['all', 'open', 'pending', 'in-progress', 'ready', 'closed'] as const).map((status) => (
+          {(['all', 'open', 'pending', 'in-progress', 'ready', 'served', 'closed'] as const).map((status) => (
             <Button
               key={status}
               variant={statusFilter === status ? 'default' : 'outline'}
@@ -217,7 +224,8 @@ export function OrdersView() {
               <SelectItem value="pending">Pending</SelectItem>
               <SelectItem value="in-progress">In Progress</SelectItem>
               <SelectItem value="ready">Ready</SelectItem>
-              <SelectItem value="closed">Ready</SelectItem>
+              <SelectItem value="served">Served</SelectItem>
+              <SelectItem value="closed">Closed</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -299,6 +307,7 @@ export function OrdersView() {
                             if (order.status === 'ready') {
                               const table = tables.find(t => t.id === order.tableId);
                               if (table) {
+                                markOrderServed(order.id);
                                 updateTableStatus(table.id, 'reserved');
                                 selectTable(table);
                                 setActiveView('tables');

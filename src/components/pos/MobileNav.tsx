@@ -68,7 +68,7 @@ export function MobileNav({ cartItemCount, activeOrdersCount, finishedOrdersCoun
     },
     {
       id: 'payment',
-      label: 'Payments',
+      label: 'Receipt',
       icon: CreditCard,
       badge: finishedOrdersCount > 0 ? finishedOrdersCount : null,
     },
