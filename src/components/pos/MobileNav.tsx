@@ -18,14 +18,16 @@ import {
   User,
   LogOut,
   Settings,
+  CreditCard,
 } from 'lucide-react';
 
 interface MobileNavProps {
   cartItemCount: number;
   activeOrdersCount: number;
+  finishedOrdersCount: number;
 }
 
-export function MobileNav({ cartItemCount, activeOrdersCount }: MobileNavProps) {
+export function MobileNav({ cartItemCount, activeOrdersCount, finishedOrdersCount }: MobileNavProps) {
   const { state, dispatch, setActiveView } = usePOS();
   const { activeView, currentStaff, selectedTable } = state;
 
@@ -63,6 +65,12 @@ export function MobileNav({ cartItemCount, activeOrdersCount }: MobileNavProps) 
       label: 'Kitchen',
       icon: ChefHat,
       badge: activeOrdersCount > 0 ? activeOrdersCount : null,
+    },
+    {
+      id: 'payment',
+      label: 'Payments',
+      icon: CreditCard,
+      badge: finishedOrdersCount > 0 ? finishedOrdersCount : null,
     },
     {
       id: 'orders',

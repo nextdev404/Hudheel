@@ -11,14 +11,15 @@ import {
   ChefHat,
   AlertCircle,
   User,
-  Ban
+  Ban,
+  CheckCircle,
 } from 'lucide-react';
 import type { Order } from '@/types/pos';
 import { formatDistanceToNow } from 'date-fns';
 
 export function KitchenView() {
-  const { state, acceptOrder, startOrder, markOrderReady, markItemUnavailable } = usePOS();
-  const { orders } = state;
+  const { state, acceptOrder, startOrder, markOrderReady, markItemUnavailable, selectTable, setActiveView } = usePOS();
+  const { orders, tables, currentStaff } = state;
   const [currentTime, setCurrentTime] = useState(new Date());
 
   // Update current time every second
@@ -32,6 +33,7 @@ export function KitchenView() {
   const pendingOrders = orders.filter((o) => o.status === 'pending');
   const acceptedOrders = orders.filter((o) => o.status === 'accepted');
   const inProgressOrders = orders.filter((o) => o.status === 'in-progress');
+  const readyOrders = orders.filter((o) => o.status === 'ready');
 
   const getPriorityColor = (order: Order) => {
     const elapsedMinutes = (currentTime.getTime() - new Date(order.createdAt).getTime()) / 60000;
@@ -40,7 +42,7 @@ export function KitchenView() {
     return 'border-slate-200 bg-white';
   };
 
-  const renderOrderCard = (order: Order, type: 'pending' | 'accepted' | 'in-progress') => {
+  const renderOrderCard = (order: Order, type: 'pending' | 'accepted' | 'in-progress' | 'ready') => {
     return (
       <Card
         key={order.id}
@@ -83,7 +85,7 @@ export function KitchenView() {
                   className="bg-orange-600 hover:bg-orange-700 w-full"
                   onClick={() => startOrder(order.id)}
                 >
-                  Start Preparing
+                  Preparing
                 </Button>
               )}
               {type === 'in-progress' && (
@@ -93,6 +95,24 @@ export function KitchenView() {
                   onClick={() => markOrderReady(order.id)}
                 >
                   Finish
+                </Button>
+              )}
+              {type === 'ready' && (
+                <Button
+                  size="sm"
+                  className="bg-slate-900 hover:bg-slate-800 w-full gap-2"
+                  disabled={!currentStaff || currentStaff.id !== order.waiterId}
+                  title={(!currentStaff || currentStaff.id !== order.waiterId) ? "Only the waiter who placed this order can pick it up" : "Pick up order"}
+                  onClick={() => {
+                    const table = tables.find(t => t.id === order.tableId);
+                    if (table) {
+                      selectTable(table);
+                      setActiveView('payment');
+                    }
+                  }}
+                >
+                  <UtensilsCrossed className="w-4 h-4" />
+                  Pick Up
                 </Button>
               )}
             </div>
@@ -163,7 +183,7 @@ export function KitchenView() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-hidden p-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
+      <div className="flex-1 overflow-hidden p-6 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-6">
         {/* Pending Orders Column */}
         <div className="flex flex-col min-h-0 bg-slate-100/50 rounded-xl border border-slate-200">
           <div className="p-4 border-b border-slate-200 bg-white/50 flex justify-between items-center rounded-t-xl">
@@ -226,7 +246,30 @@ export function KitchenView() {
             )}
           </ScrollArea>
         </div>
+
+
+        {/* Ready Orders Column */}
+        <div className="flex flex-col min-h-0 bg-slate-100/50 rounded-xl border border-slate-200">
+          <div className="p-4 border-b border-slate-200 bg-white/50 flex justify-between items-center rounded-t-xl">
+            <h2 className="font-bold flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-green-600"></div>
+              Ready
+            </h2>
+            <Badge variant="secondary">{readyOrders.length}</Badge>
+          </div>
+          <ScrollArea className="flex-1 p-4">
+            {readyOrders.length === 0 ? (
+              <div className="flex flex-col items-center justify-center h-48 text-slate-400">
+                <CheckCircle className="w-12 h-12 mb-2 opacity-20" />
+                <p>No orders ready</p>
+              </div>
+            ) : (
+              readyOrders.map(order => renderOrderCard(order, 'ready'))
+            )}
+          </ScrollArea>
+        </div>
       </div>
+
     </div>
   );
 }

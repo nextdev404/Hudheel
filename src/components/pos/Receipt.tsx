@@ -1,4 +1,5 @@
 import { useRef } from 'react';
+import { usePOS } from '@/store/posStore';
 import { Button } from '@/components/ui/button';
 import { Printer } from 'lucide-react';
 import type { Order } from '@/types/pos';
@@ -8,7 +9,17 @@ interface ReceiptProps {
 }
 
 export function Receipt({ order }: ReceiptProps) {
+  const { state } = usePOS();
+  const { currentStaff } = state;
   const receiptRef = useRef<HTMLDivElement>(null);
+
+  const canPrintReceipt =
+    currentStaff?.role === 'admin' ||
+    currentStaff?.role === 'manager' ||
+    currentStaff?.role === 'cashier' ||
+    (currentStaff?.role === 'waiter' && order.waiterId === currentStaff.id);
+
+  if (!canPrintReceipt) return null;
 
   const handlePrint = () => {
     const printContent = receiptRef.current;
@@ -168,13 +179,13 @@ export function Receipt({ order }: ReceiptProps) {
                 <span>$${order.subtotal.toFixed(2)}</span>
               </div>
               <div class="totals-row">
-                <span>Tax (2%):</span>
-                <span>$${(order.subtotal * 0.02).toFixed(2)}</span>
+                <span>Tax:</span>
+                <span>$${order.tax.toFixed(2)}</span>
               </div>
               <div class="divider"></div>
               <div class="totals-row total-final">
                 <span>Total:</span>
-                <span>$${(order.subtotal * 1.02).toFixed(2)}</span>
+                <span>$${order.total.toFixed(2)}</span>
               </div>
             </div>
 

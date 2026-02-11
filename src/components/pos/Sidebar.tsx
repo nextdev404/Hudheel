@@ -12,14 +12,16 @@ import {
   Settings,
   LogOut,
   User,
+  CreditCard,
 } from 'lucide-react';
 
 interface SidebarProps {
   cartItemCount: number;
   activeOrdersCount: number;
+  finishedOrdersCount: number;
 }
 
-export function Sidebar({ cartItemCount, activeOrdersCount }: SidebarProps) {
+export function Sidebar({ cartItemCount, activeOrdersCount, finishedOrdersCount }: SidebarProps) {
   const { state, dispatch, setActiveView } = usePOS();
   const { activeView, currentStaff, selectedTable } = state;
 
@@ -59,11 +61,16 @@ export function Sidebar({ cartItemCount, activeOrdersCount }: SidebarProps) {
       badge: activeOrdersCount > 0 ? activeOrdersCount : null,
     },
     {
+      id: 'payment',
+      label: 'Payments',
+      icon: CreditCard,
+      badge: finishedOrdersCount > 0 ? finishedOrdersCount : null,
+    },
+    {
       id: 'orders',
       label: 'Orders',
       icon: ClipboardList,
       badge: null,
-      disabled: currentStaff?.role === 'waiter',
     },
   ].filter(item => !item.hidden);
 

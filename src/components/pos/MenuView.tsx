@@ -90,7 +90,7 @@ export function MenuView() {
   return (
     <div className="flex h-full flex-col">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b bg-white p-3 sm:p-4 gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b bg-white dark:bg-slate-900 p-3 sm:p-4 gap-3">
         <div className="flex items-center gap-3">
           <Button
             variant="outline"
@@ -101,7 +101,7 @@ export function MenuView() {
             <ArrowLeft className="h-4 w-4" />
           </Button>
           <div>
-            <h2 className="text-lg sm:text-2xl font-bold text-slate-900">
+            <h2 className="text-lg sm:text-2xl font-bold text-slate-900 dark:text-slate-50">
               Table {selectedTable.number}
             </h2>
             <p className="text-xs sm:text-sm text-slate-500">
@@ -109,7 +109,7 @@ export function MenuView() {
             </p>
           </div>
         </div>
-        
+
         {/* Cart Summary - Desktop */}
         <div className="hidden sm:flex items-center gap-4">
           {cart.length > 0 && (
@@ -155,7 +155,7 @@ export function MenuView() {
       </div>
 
       {/* Category Filter */}
-      <div className="border-b bg-slate-50 p-3 sm:p-4">
+      <div className="border-b bg-slate-50 dark:bg-slate-900 p-3 sm:p-4">
         <ScrollArea className="w-full whitespace-nowrap">
           <div className="flex gap-2">
             <Button
@@ -193,7 +193,7 @@ export function MenuView() {
       </div>
 
       {/* Search */}
-      <div className="border-b bg-white p-3 sm:p-4">
+      <div className="border-b bg-white dark:bg-slate-900 p-3 sm:p-4">
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <Input

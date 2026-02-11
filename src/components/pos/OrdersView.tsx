@@ -85,8 +85,8 @@ const statusConfig = {
 };
 
 export function OrdersView() {
-  const { state } = usePOS();
-  const { orders, currentStaff } = state;
+  const { state, selectTable, setActiveView } = usePOS();
+  const { orders, tables, currentStaff } = state;
 
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState<Order['status'] | 'all'>('all');
@@ -275,13 +275,40 @@ export function OrdersView() {
                     </div>
 
                     {/* Order Summary */}
-                    <div className="text-right shrink-0">
-                      <p className="text-lg sm:text-xl font-bold text-slate-900">
-                        ${order.total.toFixed(2)}
-                      </p>
-                      <p className="text-xs text-slate-500">
-                        {order.items.reduce((sum, item) => sum + item.quantity, 0)} items
-                      </p>
+                    <div className="text-right shrink-0 flex flex-col items-end gap-2">
+                      <div>
+                        <p className="text-lg sm:text-xl font-bold text-slate-900">
+                          ${order.total.toFixed(2)}
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          {order.items.reduce((sum, item) => sum + item.quantity, 0)} items
+                        </p>
+                      </div>
+
+                      {order.status !== 'closed' && order.status !== 'cancelled' && (
+                        <Button
+                          size="sm"
+                          className={`${order.status === 'ready'
+                            ? 'bg-green-600 hover:bg-green-700'
+                            : 'bg-slate-200 text-slate-500 cursor-not-allowed'
+                            } h-8 px-3 text-xs font-bold gap-1`}
+                          disabled={order.status !== 'ready' || (!currentStaff || currentStaff.id !== order.waiterId)}
+                          title={(!currentStaff || currentStaff.id !== order.waiterId) ? "Only the waiter who placed this order can pick it up" : "Pick up order"}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (order.status === 'ready') {
+                              const table = tables.find(t => t.id === order.tableId);
+                              if (table) {
+                                selectTable(table);
+                                setActiveView('payment');
+                              }
+                            }
+                          }}
+                        >
+                          <UtensilsCrossed className="h-3 w-3" />
+                          Pick Up & Pay
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </CardContent>

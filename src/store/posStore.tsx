@@ -305,7 +305,7 @@ interface POSContextType {
 const POSContext = createContext<POSContextType | undefined>(undefined);
 
 // Local Storage Key
-const STORAGE_KEY = 'cboy_pos_v1';
+const STORAGE_KEY = 'cboy_pos_v3';
 
 // Initializer function to load from localStorage
 const initPOSState = (initial: POSState): POSState => {

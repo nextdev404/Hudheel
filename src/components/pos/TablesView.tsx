@@ -204,9 +204,9 @@ export function TablesView() {
       </AlertDialog>
 
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b bg-white p-3 sm:p-4 gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b bg-white dark:bg-slate-900 p-3 sm:p-4 gap-3">
         <div>
-          <h2 className="text-xl sm:text-2xl font-bold text-slate-900">Table Management</h2>
+          <h2 className="text-xl sm:text-2xl font-bold text-slate-900 dark:text-slate-50">Table Management</h2>
           <p className="text-sm text-slate-500">Select a table to start taking orders</p>
         </div>
 
@@ -252,7 +252,7 @@ export function TablesView() {
       </div>
 
       {/* Search */}
-      <div className="border-b bg-slate-50 p-3 sm:p-4">
+      <div className="border-b bg-slate-50 dark:bg-slate-900 p-3 sm:p-4">
         <div className="relative max-w-md">
           <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
           <Input
@@ -307,6 +307,7 @@ export function TablesView() {
                       {table.number}
                     </div>
 
+
                     {/* Status */}
                     <Badge
                       variant="outline"
@@ -316,15 +317,9 @@ export function TablesView() {
                       {config.label}
                     </Badge>
 
-                    {/* Capacity */}
-                    <div className="flex items-center gap-1 text-xs sm:text-sm text-slate-600">
-                      <Users className="h-3 w-3 sm:h-4 sm:w-4" />
-                      <span>{table.capacity} seats</span>
-                    </div>
-
                     {/* Assigned Waiter Name */}
-                    {waiterName && (
-                      <div className="w-full text-center py-1 bg-white/60 rounded text-xs font-medium text-slate-700 truncate">
+                    {waiterName && table.status !== 'available' && (
+                      <div className="w-full text-center py-1 bg-slate-100 rounded text-xs font-medium text-slate-700 truncate mt-1">
                         {waiterName}
                       </div>
                     )}
@@ -363,7 +358,7 @@ export function TablesView() {
       </div>
 
       {/* Legend */}
-      <div className="border-t bg-slate-50 p-3 sm:p-4">
+      <div className="border-t bg-slate-50 dark:bg-slate-900 p-3 sm:p-4">
         <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6">
           {Object.entries(statusConfig).map(([status, config]) => (
             <div key={status} className="flex items-center gap-1 sm:gap-2">

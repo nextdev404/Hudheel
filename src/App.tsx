@@ -49,6 +49,11 @@ function POSApp() {
     (o) => o.status === 'open' || o.status === 'pending' || o.status === 'in-progress'
   ).length;
 
+  // Calculate finished orders count for payments badge
+  const finishedOrdersCount = orders.filter(
+    (o) => o.status === 'ready'
+  ).length;
+
   // Calculate cart item count
   const cartItemCount = cart.reduce((sum, item) => sum + item.quantity, 0);
 
@@ -79,14 +84,22 @@ function POSApp() {
     <div className="flex h-screen w-full overflow-hidden bg-slate-100">
       {/* Sidebar - Hidden on mobile */}
       <div className="hidden lg:block">
-        <Sidebar cartItemCount={cartItemCount} activeOrdersCount={activeOrdersCount} />
+        <Sidebar
+          cartItemCount={cartItemCount}
+          activeOrdersCount={activeOrdersCount}
+          finishedOrdersCount={finishedOrdersCount}
+        />
       </div>
 
       {/* Main Content */}
       <div className="flex-1 flex flex-col overflow-hidden">
         {/* Mobile Header */}
         <div className="lg:hidden">
-          <MobileNav cartItemCount={cartItemCount} activeOrdersCount={activeOrdersCount} />
+          <MobileNav
+            cartItemCount={cartItemCount}
+            activeOrdersCount={activeOrdersCount}
+            finishedOrdersCount={finishedOrdersCount}
+          />
         </div>
 
         {/* View Content */}
@@ -100,6 +113,7 @@ function POSApp() {
     </div>
   );
 }
+
 
 function App() {
   return (
