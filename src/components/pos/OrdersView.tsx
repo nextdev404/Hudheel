@@ -85,7 +85,7 @@ const statusConfig = {
 };
 
 export function OrdersView() {
-  const { state, selectTable, setActiveView } = usePOS();
+  const { state, selectTable, setActiveView, updateTableStatus } = usePOS();
   const { orders, tables, currentStaff } = state;
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -297,8 +297,8 @@ export function OrdersView() {
                           onClick={(e) => {
                             e.stopPropagation();
                             if (order.status === 'ready') {
-                              const table = tables.find(t => t.id === order.tableId);
                               if (table) {
+                                updateTableStatus(table.id, 'reserved');
                                 selectTable(table);
                                 setActiveView('payment');
                               }

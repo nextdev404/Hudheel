@@ -713,8 +713,9 @@ export function POSProvider({ children }: { children: ReactNode }) {
 
     // Table Status: Food Arrives -> Reserved / In Service. 
     // "Ready" implies food is at pass. Waiter picks it up.
-    // Let's set to 'reserved' as per Prompt "Food arrives -> Table Reserved / In Service"
-    dispatch({ type: 'UPDATE_TABLE_STATUS', payload: { tableId: order.tableId, status: 'reserved' } });
+    // Table Status: Food Ready -> Waiting for Service
+    // "Ready" implies food is at pass. Waiter needs to pick it up.
+    dispatch({ type: 'UPDATE_TABLE_STATUS', payload: { tableId: order.tableId, status: 'waiting-for-service' } });
   };
 
   const markItemUnavailable = (orderId: string, itemId: string) => {

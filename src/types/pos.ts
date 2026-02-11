@@ -29,7 +29,7 @@ export interface Table {
   id: string;
   number: number;
   capacity: number;
-  status: 'available' | 'assigned' | 'occupied' | 'reserved' | 'cleaning' | 'waiting-for-food' | 'in-service';
+  status: 'available' | 'assigned' | 'occupied' | 'reserved' | 'cleaning' | 'waiting-for-food' | 'in-service' | 'waiting-for-service';
   assignedWaiterId?: string;
   currentOrder?: Order;
   position: { x: number; y: number };
@@ -111,7 +111,7 @@ export interface Notification {
   };
 }
 
-export type TableStatus = 'available' | 'assigned' | 'occupied' | 'reserved' | 'cleaning' | 'waiting-for-food' | 'in-service';
+export type TableStatus = 'available' | 'assigned' | 'occupied' | 'reserved' | 'cleaning' | 'waiting-for-food' | 'in-service' | 'waiting-for-service';
 export type OrderStatus = 'open' | 'pending' | 'accepted' | 'in-progress' | 'ready' | 'closed' | 'cancelled';
 export type PaymentMethod = 'cash' | 'card' | 'mobile';
 export type OrderItemStatus = 'pending' | 'preparing' | 'ready' | 'served';

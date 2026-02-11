@@ -18,7 +18,7 @@ import type { Order } from '@/types/pos';
 import { formatDistanceToNow } from 'date-fns';
 
 export function KitchenView() {
-  const { state, acceptOrder, startOrder, markOrderReady, markItemUnavailable, selectTable, setActiveView } = usePOS();
+  const { state, acceptOrder, startOrder, markOrderReady, markItemUnavailable, selectTable, setActiveView, updateTableStatus } = usePOS();
   const { orders, tables, currentStaff } = state;
   const [currentTime, setCurrentTime] = useState(new Date());
 
@@ -106,6 +106,7 @@ export function KitchenView() {
                   onClick={() => {
                     const table = tables.find(t => t.id === order.tableId);
                     if (table) {
+                      updateTableStatus(table.id, 'reserved');
                       selectTable(table);
                       setActiveView('payment');
                     }

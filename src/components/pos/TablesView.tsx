@@ -82,6 +82,14 @@ const statusConfig = {
     textColor: 'text-purple-700',
     icon: Sparkles,
   },
+  'waiting-for-service': {
+    label: 'Waiting for Service',
+    color: 'bg-pink-500',
+    bgColor: 'bg-pink-50',
+    borderColor: 'border-pink-200',
+    textColor: 'text-pink-700',
+    icon: AlertCircle,
+  },
 };
 
 export function TablesView() {
@@ -212,7 +220,7 @@ export function TablesView() {
 
         {/* Desktop Filter Buttons */}
         <div className="hidden sm:flex items-center gap-2 overflow-x-auto pb-2 sm:pb-0">
-          {(['all', 'available', 'assigned', 'waiting-for-food', 'in-service', 'cleaning'] as const).map(
+          {(['all', 'available', 'assigned', 'waiting-for-food', 'waiting-for-service', 'in-service', 'cleaning'] as const).map(
             (status) => (
               <Button
                 key={status}
