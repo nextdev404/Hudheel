@@ -211,8 +211,8 @@ export function MenuView() {
           {filteredItems.map((item) => (
             <Card
               key={item.id}
-              className="cursor-pointer transition-all hover:shadow-lg hover:scale-105"
-              onClick={() => handleItemClick(item)}
+              className={`transition-all ${state.currentStaff?.role === 'chef' ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer hover:shadow-lg hover:scale-105'}`}
+              onClick={() => state.currentStaff?.role !== 'chef' && handleItemClick(item)}
             >
               <CardContent className="p-3 sm:p-4">
                 <div className="flex flex-col gap-2 sm:gap-3">
@@ -250,8 +250,11 @@ export function MenuView() {
                       className="ml-auto bg-orange-500 hover:bg-orange-600"
                       onClick={(e) => {
                         e.stopPropagation();
-                        handleItemClick(item);
+                        if (state.currentStaff?.role !== 'chef') {
+                          handleItemClick(item);
+                        }
                       }}
+                      disabled={state.currentStaff?.role === 'chef'}
                     >
                       <Plus className="h-4 w-4" />
                     </Button>

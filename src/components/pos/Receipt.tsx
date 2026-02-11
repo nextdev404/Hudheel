@@ -37,14 +37,15 @@ export function Receipt({ order }: ReceiptProps) {
     const doc = iframe.contentWindow?.document;
     if (doc) {
       doc.open();
+      // ... (HTML Content Construction - Same as before)
       doc.write(`
         <!DOCTYPE html>
         <html>
           <head>
             <title>Receipt</title>
             <style>
+              /* ... (Same styles as before) ... */
               body {
-                font-family: 'Courier New', Courier, monospace;
                 font-family: 'Courier New', Courier, monospace;
                 width: 80mm;
                 margin: 0;
@@ -53,72 +54,21 @@ export function Receipt({ order }: ReceiptProps) {
                 background: #fff;
                 color: #000;
               }
-              .header {
-                margin-bottom: 20px;
-              }
-              .header h1 {
-                font-size: 24px;
-                margin: 0 0 5px 0;
-                font-weight: bold;
-              }
-              .header p {
-                margin: 2px 0;
-                font-size: 12px;
-              }
-              .divider {
-                border-top: 1px dashed #000;
-                margin: 10px 0;
-              }
-              .info-row {
-                display: flex;
-                justify-content: space-between;
-                font-size: 12px;
-                margin: 2px 0;
-              }
-              .items-table {
-                width: 100%;
-                font-size: 12px;
-                border-collapse: collapse;
-                margin: 10px 0;
-              }
-              .items-table th {
-                text-align: left;
-                border-bottom: 1px dashed #000;
-                padding-bottom: 5px;
-              }
-              .items-table td {
-                padding: 5px 0;
-                vertical-align: top;
-              }
-              .item-qty {
-                width: 30px;
-              }
-              .item-name {
-                text-align: left;
-              }
-              .item-price {
-                text-align: right;
-              }
-              .totals {
-                text-align: right;
-                font-size: 12px;
-                margin-top: 10px;
-              }
-              .totals-row {
-                display: flex;
-                justify-content: space-between;
-                margin: 2px 0;
-              }
-              .total-final {
-                font-weight: bold;
-                font-size: 14px;
-                margin-top: 5px;
-              }
-              .footer {
-                margin-top: 20px;
-                font-size: 12px;
-                text-align: center;
-              }
+              .header { margin-bottom: 20px; }
+              .header h1 { font-size: 24px; margin: 0 0 5px 0; font-weight: bold; }
+              .header p { margin: 2px 0; font-size: 12px; }
+              .divider { border-top: 1px dashed #000; margin: 10px 0; }
+              .info-row { display: flex; justify-content: space-between; font-size: 12px; margin: 2px 0; }
+              .items-table { width: 100%; font-size: 12px; border-collapse: collapse; margin: 10px 0; }
+              .items-table th { text-align: left; border-bottom: 1px dashed #000; padding-bottom: 5px; }
+              .items-table td { padding: 5px 0; vertical-align: top; }
+              .item-qty { width: 30px; }
+              .item-name { text-align: left; }
+              .item-price { text-align: right; }
+              .totals { text-align: right; font-size: 12px; margin-top: 10px; }
+              .totals-row { display: flex; justify-content: space-between; margin: 2px 0; }
+              .total-final { font-weight: bold; font-size: 14px; margin-top: 5px; }
+              .footer { margin-top: 20px; font-size: 12px; text-align: center; }
             </style>
           </head>
           <body>
@@ -203,8 +153,15 @@ export function Receipt({ order }: ReceiptProps) {
       setTimeout(() => {
         iframe.contentWindow?.focus();
         iframe.contentWindow?.print();
+
         // Cleanup
-        setTimeout(() => document.body.removeChild(iframe), 100);
+        setTimeout(() => {
+          document.body.removeChild(iframe);
+          // Trigger callback
+          if (onPrintComplete) {
+            onPrintComplete();
+          }
+        }, 100);
       }, 250);
     }
   };

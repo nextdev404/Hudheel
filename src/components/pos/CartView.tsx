@@ -251,6 +251,7 @@ export function CartView() {
               variant="outline"
               className="w-full"
               onClick={() => setActiveView('menu')}
+              disabled={state.currentStaff?.role === 'chef'}
             >
               Add More Items
             </Button>

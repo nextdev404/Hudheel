@@ -423,6 +423,9 @@ export function POSProvider({ children }: { children: ReactNode }) {
     modifiers: Modifier[],
     specialInstructions?: string
   ) => {
+    // Restriction: Chefs cannot add items
+    if (state.currentStaff?.role === 'chef') return;
+
     dispatch({
       type: 'ADD_TO_CART',
       payload: { menuItem, quantity, modifiers, specialInstructions },
