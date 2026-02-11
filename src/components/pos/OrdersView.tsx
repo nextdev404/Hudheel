@@ -301,13 +301,13 @@ export function OrdersView() {
                               if (table) {
                                 updateTableStatus(table.id, 'reserved');
                                 selectTable(table);
-                                setActiveView('payment');
+                                setActiveView('tables');
                               }
                             }
                           }}
                         >
                           <UtensilsCrossed className="h-3 w-3" />
-                          Pick Up & Pay
+                          Pick Up
                         </Button>
                       )}
                     </div>

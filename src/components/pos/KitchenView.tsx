@@ -108,7 +108,7 @@ export function KitchenView() {
                     if (table) {
                       updateTableStatus(table.id, 'reserved');
                       selectTable(table);
-                      setActiveView('payment');
+                      setActiveView('tables');
                     }
                   }}
                 >
