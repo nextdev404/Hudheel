@@ -157,10 +157,6 @@ export function Receipt({ order }: ReceiptProps) {
         // Cleanup
         setTimeout(() => {
           document.body.removeChild(iframe);
-          // Trigger callback
-          if (onPrintComplete) {
-            onPrintComplete();
-          }
         }, 100);
       }, 250);
     }
