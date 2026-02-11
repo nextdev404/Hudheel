@@ -83,7 +83,7 @@ const statusConfig = {
     icon: Sparkles,
   },
   'waiting-for-service': {
-    label: 'Waiting for Service',
+    label: 'To Table',
     color: 'bg-pink-500',
     bgColor: 'bg-pink-50',
     borderColor: 'border-pink-200',
@@ -341,7 +341,7 @@ export function TablesView() {
                         <Button
                           size="sm"
                           variant="outline"
-                          className="mt-1 sm:mt-2 w-full text-xs"
+                          className="mt-3 mb-3 w-full text-xs"
                           onClick={(e) => handleMarkDone(e, table)}
                         >
                           <CheckCircle className="mr-1 h-3 w-3" />

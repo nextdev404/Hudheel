@@ -457,6 +457,9 @@ export function POSProvider({ children }: { children: ReactNode }) {
   };
 
   const placeOrder = (): Order | null => {
+    // Restriction: Chefs cannot place orders
+    if (state.currentStaff?.role === 'chef') return null;
+
     if (!state.selectedTable || state.cart.length === 0) return null;
 
     const { subtotal, tax, total } = getCartTotal();

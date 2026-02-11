@@ -236,8 +236,13 @@ export function CartView() {
 
           <div className="mt-4 sm:mt-6 space-y-2 sm:space-y-3">
             <Button
-              className="w-full gap-2 bg-orange-500 py-4 sm:py-6 text-base sm:text-lg hover:bg-orange-600"
+              className={`w-full gap-2 py-4 sm:py-6 text-base sm:text-lg ${state.currentStaff?.role === 'chef'
+                  ? 'bg-slate-300 text-slate-500 cursor-not-allowed'
+                  : 'bg-orange-500 hover:bg-orange-600'
+                }`}
               onClick={handlePlaceOrder}
+              disabled={state.currentStaff?.role === 'chef'}
+              title={state.currentStaff?.role === 'chef' ? "Chefs cannot place orders" : "Send to Kitchen"}
             >
               <Send className="h-4 w-4 sm:h-5 sm:w-5" />
               Send to Kitchen

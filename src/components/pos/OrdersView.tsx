@@ -297,6 +297,7 @@ export function OrdersView() {
                           onClick={(e) => {
                             e.stopPropagation();
                             if (order.status === 'ready') {
+                              const table = tables.find(t => t.id === order.tableId);
                               if (table) {
                                 updateTableStatus(table.id, 'reserved');
                                 selectTable(table);
