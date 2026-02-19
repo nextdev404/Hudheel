@@ -60,14 +60,16 @@ export function PaymentView() {
     };
 
     // Construct the order object for the receipt *before* potentially clearing state
-    const orderForReceipt: any = currentOrder ? { ...currentOrder } : {
-      id: `ORD-${Date.now().toString().slice(-6)}`,
-      tableId: selectedTable?.id,
-      tableNumber: selectedTable?.number,
+    const orderForReceipt: Order = currentOrder ? { ...currentOrder } : {
+      id: 'ORD-PREVIEW',
+      tableId: selectedTable?.id || 'unknown',
+      tableNumber: selectedTable?.number || 0,
       status: 'closed',
       items: cart.map(item => ({
         ...item,
         id: Math.random().toString(36).substr(2, 9),
+        status: 'served',
+        addedAt: new Date(),
       })),
       subtotal: totals.subtotal,
       tax: totals.tax,
@@ -75,9 +77,9 @@ export function PaymentView() {
       discount: 0,
       paymentMethod: 'cash',
       servedBy: currentStaff?.name || 'Staff',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      waiterId: currentStaff?.id,
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      waiterId: currentStaff?.id || 'unknown',
     };
 
     // Ensure we have the latest totals just in case

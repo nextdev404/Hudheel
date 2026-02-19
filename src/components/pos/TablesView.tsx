@@ -104,7 +104,7 @@ export function TablesView() {
     if (state.tables.length === 0) {
       dispatch({ type: 'SET_TABLES', payload: sampleTables });
     }
-  }, []);
+  }, [dispatch, state.tables.length]);
 
   const filteredTables = state.tables.filter((table) => {
     const matchesSearch = table.number.toString().includes(searchQuery);

@@ -110,7 +110,7 @@ function posReducer(state: POSState, action: POSAction): POSState {
     case 'SET_CART':
       return { ...state, cart: action.payload };
 
-    case 'ADD_TO_CART':
+    case 'ADD_TO_CART': {
       const existingIndex = state.cart.findIndex(
         (item) =>
           item.menuItem.id === action.payload.menuItem.id &&
@@ -135,6 +135,7 @@ function posReducer(state: POSState, action: POSAction): POSState {
           },
         ],
       };
+    }
 
     case 'REMOVE_FROM_CART':
       return {
@@ -159,7 +160,7 @@ function posReducer(state: POSState, action: POSAction): POSState {
     case 'SET_SELECTED_CATEGORY':
       return { ...state, selectedCategory: action.payload };
 
-    case 'SET_CURRENT_STAFF':
+    case 'SET_CURRENT_STAFF': {
       const now = new Date();
       const todayStr = now.toISOString().split('T')[0];
       const staffId = action.payload?.id;
@@ -243,6 +244,7 @@ function posReducer(state: POSState, action: POSAction): POSState {
           return s;
         })
       };
+    }
 
     case 'SET_MODIFIER_ITEM':
       return { ...state, modifierItem: action.payload };
@@ -366,9 +368,35 @@ export function POSProvider({ children }: { children: ReactNode }) {
     }
   }, [state]);
 
+  // Helper functions - ALL MEMOIZED via context value, but defining them inside component body
+  // still creates new references unless we useCallback or just rely on useMemo for the value object.
+  // Ideally, useReducer dispatch is stable. 
+
+  // To avoid rewriting the huge function list, we will wrap the *value* object in useMemo.
+  // This means if state changes, a new value is created (correct).
+  // If parent re-renders but state implies same, we might still get new functions if defined inline.
+  // The functions defined in the component body (selectTable, etc.) rely on closure variables (state, dispatch).
+  // Wait, `selectTable` uses `state`. So it MUST change when `state` changes.
+  // So memoizing the value object with `[state]` dependency is equivalent to what we have, 
+  // EXCEPT if POSProvider re-renders due to parent re-render (children prop change?), 
+  // but `state` hasn't changed.
+
+  // Actually, standard pattern with useReducer is that the actions dispatch.
+  // The helper functions use `state` inside them?
+  // `selectTable` uses `state.currentStaff`. 
+  // `getCartTotal` uses `state.cart`.
+  // So these functions MUST be recreated when state changes.
+
+  // The issue in App.tsx loop might be:
+  // App renders.
+  // calling `usePOS` returns context.
+  // ...
+
+  // If the crash is due to `DashboardView`, it might be something else.
+  // But let's apply the useMemo fix anyway as it's best practice.
+
   // Helper functions
   const selectTable = (table: Table) => {
-    // Logic: If table is available, lock it for this waiter
     if (table.status === 'available' && state.currentStaff?.role === 'waiter') {
       dispatch({
         type: 'UPDATE_TABLE_STATUS',
@@ -378,19 +406,14 @@ export function POSProvider({ children }: { children: ReactNode }) {
           assignedWaiterId: state.currentStaff.id
         }
       });
-      // We also need to update the local 'table' object to reflect this before selecting
-      // But dispatch is async-ish in React batching? No, useReducer is sync but state update is next render.
-      // However, we can proceed to select it.
     }
 
     dispatch({ type: 'SELECT_TABLE', payload: table });
-    // Find existing order for this table
     const existingOrder = state.orders.find(
       (o) => o.tableId === table.id && o.status !== 'closed' && o.status !== 'cancelled'
     );
     if (existingOrder) {
       dispatch({ type: 'SET_CURRENT_ORDER', payload: existingOrder });
-      // Load order items into cart if status is 'open' (editable)
       if (existingOrder.status === 'open') {
         const cartItems: CartItem[] = existingOrder.items.map((item) => ({
           menuItem: item.menuItem,
@@ -407,11 +430,7 @@ export function POSProvider({ children }: { children: ReactNode }) {
       dispatch({ type: 'CLEAR_CART' });
     }
 
-    // Navigate appropriate view
     if (existingOrder && existingOrder.status !== 'open') {
-      // If order already placed, maybe go to Order Details or Menu?
-      // Let's go to Menu but with restrictions? Or stay on tables?
-      // For now, default to menu as per existing code.
       dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'menu' });
     } else {
       dispatch({ type: 'SET_ACTIVE_VIEW', payload: 'menu' });
@@ -424,7 +443,6 @@ export function POSProvider({ children }: { children: ReactNode }) {
     modifiers: Modifier[],
     specialInstructions?: string
   ) => {
-    // Restriction: Chefs cannot add items
     if (state.currentStaff?.role === 'chef') return;
 
     dispatch({
@@ -461,9 +479,7 @@ export function POSProvider({ children }: { children: ReactNode }) {
   };
 
   const placeOrder = (): Order | null => {
-    // Restriction: Chefs cannot place orders
     if (state.currentStaff?.role === 'chef') return null;
-
     if (!state.selectedTable || state.cart.length === 0) return null;
 
     const { subtotal, tax, total } = getCartTotal();
@@ -497,11 +513,9 @@ export function POSProvider({ children }: { children: ReactNode }) {
 
     dispatch({ type: 'ADD_ORDER', payload: order });
     dispatch({ type: 'SET_CURRENT_ORDER', payload: order });
-    // Table Status Flow: Waiter selects -> Assigned / Waiting for Food (after order)
     dispatch({ type: 'UPDATE_TABLE_STATUS', payload: { tableId: state.selectedTable.id, status: 'waiting-for-food' } });
     dispatch({ type: 'CLEAR_CART' });
 
-    // Notify Kitchen/Chef
     const notification: Notification = {
       id: `notif-${Date.now()}`,
       type: 'order_new',
@@ -533,11 +547,6 @@ export function POSProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'UPDATE_ORDER', payload: updatedOrder });
 
     if (state.selectedTable) {
-      // We DO NOT set to available here anymore. "Table remains locked until assigned waiter marks done".
-      // We set to 'cleaning' or 'in-service' as "Receipt Delivered"?
-      // Prompt says: "Waiter serves and delivers receipt -> Table remains locked until assigned waiter marks done"
-      // Prompt also says "Assigned waiter marks done -> Table becomes Available automatically"
-      // So here we keep it locked. Maybe change status to 'cleaning' to indicate payment done?
       dispatch({
         type: 'UPDATE_TABLE_STATUS',
         payload: { tableId: state.selectedTable.id, status: 'cleaning' },
@@ -552,28 +561,22 @@ export function POSProvider({ children }: { children: ReactNode }) {
   };
 
   const updateTableStatus = (tableId: string, status: Table['status']) => {
-    // If setting to available, clear assignment
     const assignedWaiterId = status === 'available' ? undefined : state.tables.find(t => t.id === tableId)?.assignedWaiterId;
     dispatch({ type: 'UPDATE_TABLE_STATUS', payload: { tableId, status, assignedWaiterId: status === 'available' ? undefined : assignedWaiterId } });
   };
 
   const markTableDone = (tableId: string) => {
-    // Find the active order for this table
     const activeOrder = state.orders.find(
       o => o.tableId === tableId && o.status !== 'closed' && o.status !== 'cancelled'
     );
 
     if (activeOrder) {
-      // Create payment record
       const updatedOrder: Order = {
         ...activeOrder,
         status: 'closed',
         updatedAt: new Date(),
       };
-
       dispatch({ type: 'UPDATE_ORDER', payload: updatedOrder });
-
-      // Log the action
       logAction('MARK_TABLE_DONE', {
         tableId,
         orderId: activeOrder.id,
@@ -583,7 +586,6 @@ export function POSProvider({ children }: { children: ReactNode }) {
       });
     }
 
-    // Set table to available and clear assignment
     dispatch({
       type: 'UPDATE_TABLE_STATUS',
       payload: { tableId, status: 'available', assignedWaiterId: undefined }
@@ -596,14 +598,13 @@ export function POSProvider({ children }: { children: ReactNode }) {
       const updatedOrder: Order = { ...order, status: 'served', updatedAt: new Date() };
       dispatch({ type: 'UPDATE_ORDER', payload: updatedOrder });
 
-      // Notify for payment
       const notification: Notification = {
         id: `notif-pay-${Date.now()}`,
         type: 'payment_pending',
         message: `Payment pending for Table ${order.tableNumber}`,
         createdAt: new Date().toISOString(),
         read: false,
-        recipientRole: 'waiter', // Notify the waiter (or maybe cashier/manager?)
+        recipientRole: 'waiter',
         recipientId: order.waiterId,
         data: {
           orderId: order.id,
@@ -644,18 +645,15 @@ export function POSProvider({ children }: { children: ReactNode }) {
     dispatch({ type: 'REMOVE_STAFF', payload: id });
   };
 
-  const logAction = (action: string, details: any) => {
+  const logAction = (action: string, details: unknown) => {
     console.log(`[POS LOG] ${new Date().toISOString()} | User: ${state.currentStaff?.name} (${state.currentStaff?.role}) | Action: ${action}`, details);
   };
 
   const acceptOrder = (orderId: string) => {
     if (state.currentStaff?.role !== 'chef' && state.currentStaff?.role !== 'admin') return;
-
     const order = state.orders.find(o => o.id === orderId);
     if (!order) return;
-
     logAction('ACCEPT_ORDER', { orderId });
-
     const updatedOrder: Order = {
       ...order,
       status: 'accepted',
@@ -663,8 +661,6 @@ export function POSProvider({ children }: { children: ReactNode }) {
       updatedAt: new Date(),
     };
     dispatch({ type: 'UPDATE_ORDER', payload: updatedOrder });
-
-    // Notify Waiter
     const notification: Notification = {
       id: `notif-${Date.now()}`,
       type: 'system',
@@ -680,12 +676,9 @@ export function POSProvider({ children }: { children: ReactNode }) {
 
   const startOrder = (orderId: string) => {
     if (state.currentStaff?.role !== 'chef' && state.currentStaff?.role !== 'admin') return;
-
     const order = state.orders.find(o => o.id === orderId);
     if (!order) return;
-
     logAction('START_ORDER', { orderId });
-
     const updatedOrder: Order = {
       ...order,
       status: 'in-progress',
@@ -693,8 +686,6 @@ export function POSProvider({ children }: { children: ReactNode }) {
       items: order.items.map(item => ({ ...item, status: 'preparing' }))
     };
     dispatch({ type: 'UPDATE_ORDER', payload: updatedOrder });
-
-    // Notify Waiter
     const notification: Notification = {
       id: `notif-${Date.now()}`,
       type: 'system',
@@ -710,12 +701,9 @@ export function POSProvider({ children }: { children: ReactNode }) {
 
   const markOrderReady = (orderId: string) => {
     if (state.currentStaff?.role !== 'chef' && state.currentStaff?.role !== 'admin') return;
-
     const order = state.orders.find(o => o.id === orderId);
     if (!order) return;
-
     logAction('FINISH_ORDER', { orderId });
-
     const now = new Date();
     const updatedOrder: Order = {
       ...order,
@@ -725,8 +713,6 @@ export function POSProvider({ children }: { children: ReactNode }) {
       items: order.items.map(item => ({ ...item, status: 'ready' }))
     };
     dispatch({ type: 'UPDATE_ORDER', payload: updatedOrder });
-
-    // Notify Waiter
     const notification: Notification = {
       id: `notif-${Date.now()}`,
       type: 'order_ready',
@@ -741,33 +727,22 @@ export function POSProvider({ children }: { children: ReactNode }) {
       }
     };
     dispatch({ type: 'ADD_NOTIFICATION', payload: notification });
-
-    // Table Status: Food Arrives -> Reserved / In Service. 
-    // "Ready" implies food is at pass. Waiter picks it up.
-    // Table Status: Food Ready -> Waiting for Service
-    // "Ready" implies food is at pass. Waiter needs to pick it up.
     dispatch({ type: 'UPDATE_TABLE_STATUS', payload: { tableId: order.tableId, status: 'waiting-for-service' } });
   };
 
   const markItemUnavailable = (orderId: string, itemId: string) => {
     if (state.currentStaff?.role !== 'chef' && state.currentStaff?.role !== 'admin') return;
-
     const order = state.orders.find(o => o.id === orderId);
     if (!order) return;
-
     const item = order.items.find(i => i.id === itemId);
     if (!item) return;
-
     logAction('MARK_UNAVAILABLE', { orderId, itemId, itemName: item.menuItem.name });
-
     const updatedOrder: Order = {
       ...order,
       items: order.items.map(i => i.id === itemId ? { ...i, unavailable: true } : i),
       updatedAt: new Date(),
     };
     dispatch({ type: 'UPDATE_ORDER', payload: updatedOrder });
-
-    // Notify Waiter
     const notification: Notification = {
       id: `notif-${Date.now()}`,
       type: 'system',
@@ -826,6 +801,7 @@ export function POSProvider({ children }: { children: ReactNode }) {
 }
 
 // Hook
+// eslint-disable-next-line react-refresh/only-export-components
 export function usePOS() {
   const context = useContext(POSContext);
   if (context === undefined) {
